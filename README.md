@@ -1,1 +1,67 @@
+El proyecto deberá consistir en una simulación desarrollada en Unity (C#) en la que se implemente una máquina de estados destinada a controlar la IA de un NPC cuyo objetivo sea cazar a los agentes autónomos presentes en el escenario, aplicando técnicas de flocking.
+Se deberá implementar un sistema de agentes autónomos utilizando el modelo de flocking (Boids) compuesto por un mínimo de 6 agentes.
+Los agentes deberán cumplir con los siguientes requisitos:
+- Los agentes deberán implementarse como agentes autónomos individuales, donde cada uno tome decisiones utilizando únicamente la información obtenida mediante sus sensores. No debe existir un controlador global que indique las acciones de cada agente ni un líder que coordine el comportamiento del grupo.
+- Los agentes deberán realizar flocking entre ellos utilizando un rango de percepción limitado, evitando utilizar información de todo el escenario.
+- El sistema deberá implementar los comportamientos:
+  - Separation
+  - Alignment
+  - Cohesion
+- El comportamiento Separation deberá utilizar un rango de percepción diferente y menor al utilizado para Alignment y Cohesion.
+- Los agentes deberán aplicar el comportamiento Evade cuando detecten un NPC Cazador dentro de su rango de visión. Este comportamiento deberá tener prioridad sobre los comportamientos de flocking mientras exista una amenaza detectada.
+- El sistema deberá evitar la superposición entre agentes, utilizando los comportamientos necesarios para mantener una separación adecuada.
+- El agente cazador deberá generar objetos de interés dentro del escenario. Los agentes Boids deberán dirigirse hacia dichos objetos utilizando Arrive, permitiendo acercarse al objetivo sin superponerse con él.
+- Al llegar al objeto de interés, el agente deberá interactuar con este reduciendo su vida cada un determinado intervalo de tiempo hasta destruirlo.
+- Cuando la vida del agente llegue a cero, deberá quedar inactivo en el lugar donde fue eliminado, sin continuar desplazándose.
+- Una vez recolectado por el NPC Cazador, el agente deberá desaparecer y luego reaparecer en una ubicación aleatoria del escenario después de un tiempo determinado.
+- La implementación de una máquina de estados para los agentes Boids es opcional. Puede utilizarse si se considera necesaria para organizar su comportamiento.
 
+
+El NPC Cazador deberá implementarse utilizando obligatoriamente una Máquina de Estados Finita (FSM) para gestionar sus comportamientos.
+Las transiciones entre estados deberán estar controladas por la propia FSM y no mediante lógica externa al sistema de estados.
+El NPC deberá contar obligatoriamente con las siguientes variables (además de aquellas necesarias para su funcionamiento):
+- TBA (Time Between Attacks): tiempo mínimo entre ataques.
+- RangeAttackRadius: distancia máxima para realizar ataques a distancia.
+- MeleeAttackRadius: distancia máxima para realizar ataques cuerpo a cuerpo.
+
+
+El NPC deberá:
+- Desplazarse utilizando un sistema de waypoints.
+- Al finalizar el recorrido deberá:
+  - volver al primer waypoint, o
+  - recorrer los waypoints en sentido inverso.
+- Cada determinado intervalo de tiempo deberá generar un objeto de interés, siempre que existan menos de 5 objetos activos simultáneamente en escena.
+
+
+El NPC únicamente podrá ingresar al estado Attack cuando:
+- El tiempo entre ataques (TBA) haya finalizado.
+- Exista al menos un agente Boid dentro de su rango de percepción.
+Una vez dentro del estado Attack:
+- El NPC deberá evaluar la distancia al objetivo.
+- Si el objetivo se encuentra dentro de MeleeAttackRadius, deberá perseguirlo hasta encontrarse en rango para realizar un ataque cuerpo a cuerpo.
+- Si el objetivo no se encuentra dentro de rango cuerpo a cuerpo, pero sí dentro de RangeAttackRadius, deberá realizar un ataque a distancia.
+- Si el objetivo no se encuentra dentro de ningún rango de ataque, deberá perseguirlo hasta alcanzar una distancia que permita atacar.
+- Al realizar un ataque exitoso:
+  - deberá reiniciar el temporizador TBA.
+  - deberá abandonar el estado Attack.
+- Si el objetivo abandona el rango de visión del NPC:
+  - deberá volver al estado Patrol.
+  - no deberá reiniciar el temporizador TBA.
+
+
+El NPC deberá ingresar al estado Gather cuando detecte un agente Boid eliminado dentro de su rango de percepción.
+Durante este estado deberá:
+- Dirigirse hacia el agente eliminado.
+- Ejecutar la acción de recolección durante un tiempo determinado.
+- Al finalizar la acción, el agente recolectado deberá desaparecer.
+Si el objetivo deja de estar disponible antes de completar la recolección, el NPC deberá abandonar la acción y regresar al comportamiento correspondiente.
+
+
+- Las transiciones entre estados del NPC Cazador deberán ser gestionadas exclusivamente mediante la FSM.
+- El sistema deberá incluir algún mecanismo de feedback visual y/o funcional que permita identificar los estados y acciones principales de los agentes durante la ejecución.
+Ejemplos:
+- Estado actual del NPC Cazador.
+- Objetivo actual.
+- Agentes detectados.
+- Acciones realizadas.
+- Cambios de comportamiento.
